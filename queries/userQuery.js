@@ -9,4 +9,4 @@ const findUser = async (id) => {
   }
 };
 
-module.exports = { findUser };
+module.exports = findUser;

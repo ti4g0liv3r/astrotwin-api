@@ -1,3 +1,3 @@
-const { findUser } = require("./userQuery");
+const findUser = require("./userQuery");
 
-module.exports = { findUser };
+module.exports = findUser;
