@@ -1,18 +1,22 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const jwtConfig = require("../jwt/config.json");
-const privateRoute = express.Router();
+const router = express.Router();
 
-const { checkToken } = require("../utils/checkToken");
-const { passwordCompare } = require("../utils/passwordEncrypt");
+const { jwtDecoder, checkToken, passwordCompare } = require("../utils");
+const { createUser, createPost } = require("../models/utils/index");
+const {
+  findUser,
+  findPostByUser,
+  findPostByPostId,
+  deletePostByPostId,
+} = require("../queries");
 
 const User = require("../models/User");
-const { createUser, createPost } = require("../models/utils/index");
-const findUser = require("../queries");
 
 //Create a new user route
 
-privateRoute.post("/auth/register", async (req, res) => {
+router.post("/auth/register", async (req, res) => {
   console.log("Registration called");
   const { name, email, birthdate, password, confirmPasspord } = req.body;
 
@@ -53,7 +57,7 @@ privateRoute.post("/auth/register", async (req, res) => {
   }
 });
 
-privateRoute.post("/auth/login", async (req, res) => {
+router.post("/auth/login", async (req, res) => {
   const { email, password } = req.body;
   console.log(req.body);
 
@@ -104,7 +108,6 @@ privateRoute.post("/auth/login", async (req, res) => {
       refreshToken: refreshToken,
     };
 
-    tokenList[refreshToken] = response;
     res.status(200).json(response);
   } catch (error) {
     console.log(error);
@@ -112,7 +115,7 @@ privateRoute.post("/auth/login", async (req, res) => {
   }
 });
 
-privateRoute.get("/auth/user/:id", checkToken, async (req, res) => {
+router.get("/auth/user/profile/:id", checkToken, async (req, res) => {
   const id = req.params.id;
 
   //check if user exists
@@ -126,16 +129,12 @@ privateRoute.get("/auth/user/:id", checkToken, async (req, res) => {
   res.status(200).json({ user });
 });
 
-privateRoute.post("/auth/user/:id/post", checkToken, async (req, res) => {
-  const id = req.params.id;
+router.post("/auth/user/post", checkToken, async (req, res) => {
   const post = req.body.post;
 
-  const usertoken = req.headers.authorization;
-  const token = usertoken.split(" ");
-  const decoded = jwt.verify(token[1], "secret-key");
-  console.log(decoded);
+  const decoded = jwtDecoder(req.headers.authorization);
 
-  //const newPost = createPost(post, id);
+  const newPost = createPost(post, decoded.id);
 
   if (!newPost) {
     return res.status(404).json({ msg: "Could post the message" });
@@ -144,4 +143,40 @@ privateRoute.post("/auth/user/:id/post", checkToken, async (req, res) => {
   res.status(200).json({ msg: "Posted correctly" });
 });
 
-module.exports = privateRoute;
+router.get("/auth/user/posts", checkToken, async (req, res) => {
+  const decoded = jwtDecoder(req.headers.authorization);
+  const userId = decoded.id;
+
+  const post = await findPostByUser(userId);
+
+  if (!post) {
+    return res.status(404).json({ msg: "Not posts for this user" });
+  }
+
+  res.status(200).json({ post });
+});
+
+router.delete("/auth/user/post/:postID", checkToken, async (req, res) => {
+  const postID = req.params.postID;
+  const decoded = jwtDecoder(req.headers.authorization);
+  const userId = decoded.id;
+
+  const post = await findPostByPostId(postID);
+
+  if (!post) {
+    return res.status(404).json({ msg: "Not posts for this user" });
+  }
+
+  if (userId !== post[0].user) {
+    return res.status(403).json({ msg: "Permision denied!" });
+  }
+
+  try {
+    await deletePostByPostId(postID);
+    res.status(200).json({ msg: "Post deleted!" });
+  } catch (error) {
+    res.status(500).json({ msg: "Couldn't delete the post requested" });
+  }
+});
+
+module.exports = router;
