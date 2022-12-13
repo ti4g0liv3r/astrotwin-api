@@ -9,4 +9,13 @@ const findUser = async (id) => {
   }
 };
 
-module.exports = { findUser };
+const deleteUser = async (id) => {
+  try {
+    const user = await User.deleteOne({ _id: id });
+    return user;
+  } catch (error) {
+    console.log("User not found");
+  }
+};
+
+module.exports = { findUser, deleteUser };
