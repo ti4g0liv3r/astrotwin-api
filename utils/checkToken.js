@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const jwt_decoder = require("jwt-decode");
 const config = require("../jwt/config.json");
 
 const checkToken = (req, res, next) => {
@@ -10,9 +11,16 @@ const checkToken = (req, res, next) => {
   }
 
   try {
+    const secret = process.env.SECRET;
     const refreshSecret = process.env.REFRESH_SECRET;
 
-    jwt.verify(token, refreshSecret, { expiresIn: config.refreshTokenLife });
+    const decoded = jwt_decoder(token);
+
+    if (!decoded.expiresIn) {
+      jwt.verify(token, secret);
+    } else {
+      jwt.verify(token, refreshSecret, { expiresIn: config.refreshTokenLife });
+    }
 
     next();
   } catch (error) {
@@ -20,4 +28,4 @@ const checkToken = (req, res, next) => {
   }
 };
 
-module.exports = { checkToken };
+module.exports = checkToken;
