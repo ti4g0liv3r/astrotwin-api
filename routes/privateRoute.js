@@ -7,6 +7,7 @@ const { jwtDecoder, checkToken, passwordCompare } = require("../utils");
 const { createUser, createPost } = require("../models/utils/index");
 const {
   findUser,
+  deleteUser,
   findPostByUser,
   findPostByPostId,
   deletePostByPostId,
@@ -17,8 +18,9 @@ const User = require("../models/User");
 //Create a new user route
 
 router.post("/auth/register", async (req, res) => {
-  console.log("Registration called");
   const { name, email, birthdate, password, confirmPasspord } = req.body;
+
+  // BASIC PARAMS CHECKS
 
   if (!name) {
     return res.status(422).json({ msg: "Missing name field" });
@@ -41,7 +43,7 @@ router.post("/auth/register", async (req, res) => {
       .json({ msg: "Password and password confirmation must be the same" });
   }
 
-  //Check if user exists
+  //CHECK IF USER ALREADY EXISTS
 
   const userExists = await User.findOne({ email: email });
 
@@ -102,13 +104,11 @@ router.post("/auth/login", async (req, res) => {
       refreshSecret
     );
 
-    const response = {
-      msg: "Logged in",
-      token: token,
-      refreshToken: refreshToken,
-    };
-
-    res.status(200).json(response);
+    res.status(200).json({
+      msg: "User connected",
+      token,
+      refreshToken,
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ msg: "Oops! something went wrong", token });
@@ -129,12 +129,39 @@ router.get("/auth/user/profile/:id", checkToken, async (req, res) => {
   res.status(200).json({ user });
 });
 
+router.delete("/auth/user/profile/:id", checkToken, async (req, res) => {
+  const id = req.params.id;
+  const decodedToken = jwtDecoder(req.headers.authorization);
+  const tokenUserId = decodedToken.id;
+
+  //check if user exists
+
+  const user = await findUser(id);
+
+  if (!user) {
+    return res.status(404).json({ msg: "User not found" });
+  }
+
+  if (id !== tokenUserId) {
+    return res.status(403).json({ msg: "Permision denied" });
+  }
+
+  try {
+    await deleteUser(id);
+    return res.status(200).json({ msg: "User deleted" });
+  } catch (error) {
+    return res.status(500).json({ msg: "Oops! something went wrong" });
+  }
+});
+
+// POSTS ROUTERS
+
 router.post("/auth/user/post", checkToken, async (req, res) => {
   const post = req.body.post;
 
-  const decoded = jwtDecoder(req.headers.authorization);
+  const decodedToken = jwtDecoder(req.headers.authorization);
 
-  const newPost = createPost(post, decoded.id);
+  const newPost = createPost(post, decodedToken.id);
 
   if (!newPost) {
     return res.status(404).json({ msg: "Could post the message" });
@@ -144,8 +171,8 @@ router.post("/auth/user/post", checkToken, async (req, res) => {
 });
 
 router.get("/auth/user/posts", checkToken, async (req, res) => {
-  const decoded = jwtDecoder(req.headers.authorization);
-  const userId = decoded.id;
+  const decodedToken = jwtDecoder(req.headers.authorization);
+  const userId = decodedToken.id;
 
   const post = await findPostByUser(userId);
 
@@ -158,8 +185,8 @@ router.get("/auth/user/posts", checkToken, async (req, res) => {
 
 router.delete("/auth/user/post/:postID", checkToken, async (req, res) => {
   const postID = req.params.postID;
-  const decoded = jwtDecoder(req.headers.authorization);
-  const userId = decoded.id;
+  const decodedToken = jwtDecoder(req.headers.authorization);
+  const userId = decodedToken.id;
 
   const post = await findPostByPostId(postID);
 

@@ -1,4 +1,4 @@
-const findUser = require("./userQuery");
+const { findUser, deleteUser } = require("./userQuery");
 const {
   findPostByUser,
   findPostByPostId,
@@ -7,6 +7,7 @@ const {
 
 module.exports = {
   findUser,
+  deleteUser,
   findPostByUser,
   findPostByPostId,
   deletePostByPostId,
