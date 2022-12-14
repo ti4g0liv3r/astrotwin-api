@@ -3,7 +3,12 @@ const jwt = require("jsonwebtoken");
 const jwtConfig = require("../jwt/config.json");
 const router = express.Router();
 
-const { jwtDecoder, checkToken, passwordCompare } = require("../utils");
+const {
+  jwtDecoder,
+  checkToken,
+  passwordCompare,
+  calculateBirthChart,
+} = require("../utils");
 const { createUser, createPost } = require("../models/utils/index");
 const {
   findUser,
@@ -15,12 +20,12 @@ const {
 
 const User = require("../models/User");
 
-//Create a new user route
+//CREATE A NEW USER ROUTE
 
 router.post("/auth/register", async (req, res) => {
   const { name, email, birthdate, password, confirmPasspord } = req.body;
 
-  // BASIC PARAMS CHECKS
+  // Basic params check
 
   if (!name) {
     return res.status(422).json({ msg: "Missing name field" });
@@ -43,7 +48,7 @@ router.post("/auth/register", async (req, res) => {
       .json({ msg: "Password and password confirmation must be the same" });
   }
 
-  //CHECK IF USER ALREADY EXISTS
+  //Check is user exists
 
   const userExists = await User.findOne({ email: email });
 
@@ -59,11 +64,14 @@ router.post("/auth/register", async (req, res) => {
   }
 });
 
+// USER LOGIN ROUTE
+
 router.post("/auth/login", async (req, res) => {
   const { email, password } = req.body;
   console.log(req.body);
 
-  //Users validation
+  //Users data validation
+
   if (!email) {
     return res.status(422).json({ msg: "Email is a required field" });
   }
@@ -85,7 +93,8 @@ router.post("/auth/login", async (req, res) => {
     return res.status(422).json({ msg: "Password is incorrect" });
   }
 
-  //If valitation passes, return a message and the JWT token
+  // If valitation passes, return a message and the JWT token
+
   try {
     const secret = process.env.SECRET;
     const refreshSecret = process.env.REFRESH_SECRET;
@@ -115,6 +124,8 @@ router.post("/auth/login", async (req, res) => {
   }
 });
 
+//GET USER'S INFORMATION BY USER ID ROUTE
+
 router.get("/auth/user/profile/:id", checkToken, async (req, res) => {
   const id = req.params.id;
 
@@ -128,6 +139,8 @@ router.get("/auth/user/profile/:id", checkToken, async (req, res) => {
 
   res.status(200).json({ user });
 });
+
+//DELETE USER ROUTE
 
 router.delete("/auth/user/profile/:id", checkToken, async (req, res) => {
   const id = req.params.id;
@@ -156,6 +169,8 @@ router.delete("/auth/user/profile/:id", checkToken, async (req, res) => {
 
 // POSTS ROUTERS
 
+// CREATE A NEW POST ROUTE
+
 router.post("/auth/user/post", checkToken, async (req, res) => {
   const post = req.body.post;
 
@@ -170,6 +185,8 @@ router.post("/auth/user/post", checkToken, async (req, res) => {
   res.status(200).json({ msg: "Posted correctly" });
 });
 
+// GET USER POSTS
+
 router.get("/auth/user/posts", checkToken, async (req, res) => {
   const decodedToken = jwtDecoder(req.headers.authorization);
   const userId = decodedToken.id;
@@ -182,6 +199,8 @@ router.get("/auth/user/posts", checkToken, async (req, res) => {
 
   res.status(200).json({ post });
 });
+
+//DELETE USER'S POST BY ID
 
 router.delete("/auth/user/post/:postID", checkToken, async (req, res) => {
   const postID = req.params.postID;
@@ -204,6 +223,24 @@ router.delete("/auth/user/post/:postID", checkToken, async (req, res) => {
   } catch (error) {
     res.status(500).json({ msg: "Couldn't delete the post requested" });
   }
+});
+
+///////////////////////////////////////////////////////
+
+router.post("/auth/user/birthchart/calculate", checkToken, async (req, res) => {
+  const { date, hour, minute, latitude, longitude } = req.body;
+
+  const birthChart = calculateBirthChart(
+    date,
+    hour,
+    minute,
+    latitude,
+    longitude
+  );
+
+  //const decodedToken = jwtDecoder(req.headers.authorization);
+
+  res.status(200).json({ msg: "Birhchart calculated correctly", birthChart });
 });
 
 module.exports = router;
