@@ -1,11 +1,11 @@
 const Post = require("../Posts");
 
-const createPost = async (post, userID) => {
+const createPost = async (post, userId) => {
   const date = new Date();
   const newPost = new Post({
     date,
     post,
-    user: userID,
+    userId,
   });
 
   try {
