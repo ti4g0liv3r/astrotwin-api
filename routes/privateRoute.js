@@ -189,7 +189,7 @@ router.post("/auth/user/post", checkToken, async (req, res) => {
     return res.status(404).json({ msg: "Could post the message" });
   }
 
-  res.status(200).json({ msg: "Posted correctly" });
+  res.status(201).json({ msg: "Posted correctly" });
 });
 
 // GET USER POSTS
@@ -201,7 +201,7 @@ router.get("/auth/user/posts", checkToken, async (req, res) => {
   const post = await findPostByUser(userId);
 
   if (!post) {
-    return res.status(404).json({ msg: "Not posts for this user" });
+    return res.status(404).json({ msg: "Not posts found for this user" });
   }
 
   res.status(200).json({ post });
@@ -217,7 +217,7 @@ router.delete("/auth/user/post/:postID", checkToken, async (req, res) => {
   const post = await findPostByPostId(postID);
 
   if (!post) {
-    return res.status(404).json({ msg: "Not posts for this user" });
+    return res.status(404).json({ msg: "Not posts found for this user" });
   }
 
   if (userId !== post[0].user) {
@@ -233,6 +233,8 @@ router.delete("/auth/user/post/:postID", checkToken, async (req, res) => {
 });
 
 ///////////////////////////////////////////////////////
+
+//BIRTHCHART CREATION
 
 router.post("/auth/user/birthchart/calculate", checkToken, async (req, res) => {
   const { date, hour, minute, latitude, longitude } = req.body;
@@ -255,7 +257,7 @@ router.post("/auth/user/birthchart/calculate", checkToken, async (req, res) => {
       try {
         await createBirthChart(birthChart);
         res
-          .status(200)
+          .status(201)
           .json({ msg: "Birhchart calculated correctly", birthChart });
       } catch (error) {
         res.status(500).json({ msg: "Couldn't created birthchart" });
@@ -265,7 +267,7 @@ router.post("/auth/user/birthchart/calculate", checkToken, async (req, res) => {
       res.status(500).json({ msg: "Couldn't generate birthchart" });
     }
   } else {
-    res.status(500).json({ msg: "User already has a birthchart" });
+    res.status(403).json({ msg: "User already has a birthchart" });
   }
 });
 
@@ -280,24 +282,6 @@ router.get("/auth/user/birthchart/chart", checkToken, async (req, res) => {
   }
 
   res.status(404).json({ msg: "No birthchart found" });
-
-  // if (existingBirthchart.length == 0) {
-  //   if (birthChart) {
-  //     try {
-  //       await createBirthChart(birthChart);
-  //       res
-  //         .status(200)
-  //         .json({ msg: "Birhchart calculated correctly", birthChart });
-  //     } catch (error) {
-  //       res.status(500).json({ msg: "Couldn't created birthchart" });
-  //       console.log("Couldn't create birthchart");
-  //     }
-  //   } else {
-  //     res.status(500).json({ msg: "Couldn't generate birthchart" });
-  //   }
-  // } else {
-  //   res.status(500).json({ msg: "User already has a birthchart" });
-  // }
 });
 
 router.delete(
