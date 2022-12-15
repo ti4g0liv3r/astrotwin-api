@@ -25,14 +25,18 @@ const calculateBirthChart = (
   longitude,
   userId
 ) => {
+  const year = date.split("-")[0];
+  const month = date.split("-")[1];
+  const day = date.split("-")[2];
+
   const origin = new Origin({
-    year: 1989,
-    month: 6, // 0 = January, 11 = December!
-    date: 16,
-    hour: 15,
-    minute: 50,
-    latitude: -11.0,
-    longitude: -61.0,
+    year: year,
+    month: month, // 0 = January, 11 = December!
+    date: day,
+    hour: hour,
+    minute: minute,
+    latitude: latitude,
+    longitude: longitude,
   });
 
   const horoscope = new Horoscope({
@@ -54,7 +58,7 @@ const calculateBirthChart = (
   });
 
   const birthChart = {
-    userId,
+    userId: userId,
     sun: horoscope.CelestialBodies.sun.Sign.key,
     moon: horoscope.CelestialBodies.moon.Sign.key,
     mercury: horoscope.CelestialBodies.mercury.Sign.key,

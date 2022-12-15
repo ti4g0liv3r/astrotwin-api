@@ -4,6 +4,7 @@ const {
   findPostByPostId,
   deletePostByPostId,
 } = require("./postQuery");
+const { findBirthChart, deleteBirthChart } = require("./birthChartQuery");
 
 module.exports = {
   findUser,
@@ -11,4 +12,6 @@ module.exports = {
   findPostByUser,
   findPostByPostId,
   deletePostByPostId,
+  findBirthChart,
+  deleteBirthChart,
 };

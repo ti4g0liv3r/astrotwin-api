@@ -2,7 +2,7 @@ const Post = require("../models/Posts");
 
 const findPostByUser = async (userId) => {
   try {
-    const post = await Post.find({ user: userId });
+    const post = await Post.find({ userId: userId });
     return post;
   } catch (error) {
     console.log("No posts found for that user");
