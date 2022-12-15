@@ -9,13 +9,21 @@ const {
   passwordCompare,
   calculateBirthChart,
 } = require("../utils");
-const { createUser, createPost } = require("../models/utils/index");
+
+const {
+  createUser,
+  createPost,
+  createBirthChart,
+} = require("../models/utils/index");
+
 const {
   findUser,
   deleteUser,
   findPostByUser,
   findPostByPostId,
   deletePostByPostId,
+  findBirthChart,
+  deleteBirthChart,
 } = require("../queries");
 
 const User = require("../models/User");
@@ -68,7 +76,6 @@ router.post("/auth/register", async (req, res) => {
 
 router.post("/auth/login", async (req, res) => {
   const { email, password } = req.body;
-  console.log(req.body);
 
   //Users data validation
 
@@ -229,18 +236,94 @@ router.delete("/auth/user/post/:postID", checkToken, async (req, res) => {
 
 router.post("/auth/user/birthchart/calculate", checkToken, async (req, res) => {
   const { date, hour, minute, latitude, longitude } = req.body;
+  const decodedToken = jwtDecoder(req.headers.authorization);
+  const userId = decodedToken.id;
 
   const birthChart = calculateBirthChart(
     date,
     hour,
     minute,
     latitude,
-    longitude
+    longitude,
+    userId
   );
 
-  //const decodedToken = jwtDecoder(req.headers.authorization);
+  const existingBirthchart = await findBirthChart(userId);
 
-  res.status(200).json({ msg: "Birhchart calculated correctly", birthChart });
+  if (existingBirthchart.length == 0) {
+    if (birthChart) {
+      try {
+        await createBirthChart(birthChart);
+        res
+          .status(200)
+          .json({ msg: "Birhchart calculated correctly", birthChart });
+      } catch (error) {
+        res.status(500).json({ msg: "Couldn't created birthchart" });
+        console.log("Couldn't create birthchart");
+      }
+    } else {
+      res.status(500).json({ msg: "Couldn't generate birthchart" });
+    }
+  } else {
+    res.status(500).json({ msg: "User already has a birthchart" });
+  }
 });
+
+router.get("/auth/user/birthchart/chart", checkToken, async (req, res) => {
+  const decodedToken = jwtDecoder(req.headers.authorization);
+  const userId = decodedToken.id;
+
+  const birthChart = await findBirthChart(userId);
+
+  if (birthChart.length !== 0) {
+    res.status(200).json({ birthChart });
+  }
+
+  res.status(404).json({ msg: "No birthchart found" });
+
+  // if (existingBirthchart.length == 0) {
+  //   if (birthChart) {
+  //     try {
+  //       await createBirthChart(birthChart);
+  //       res
+  //         .status(200)
+  //         .json({ msg: "Birhchart calculated correctly", birthChart });
+  //     } catch (error) {
+  //       res.status(500).json({ msg: "Couldn't created birthchart" });
+  //       console.log("Couldn't create birthchart");
+  //     }
+  //   } else {
+  //     res.status(500).json({ msg: "Couldn't generate birthchart" });
+  //   }
+  // } else {
+  //   res.status(500).json({ msg: "User already has a birthchart" });
+  // }
+});
+
+router.delete(
+  "/auth/user/birthchart/:birthChartId",
+  checkToken,
+  async (req, res) => {
+    const { birthChartId } = req.params;
+    const decodedToken = jwtDecoder(req.headers.authorization);
+    const userId = decodedToken.id;
+
+    const birthChart = await findBirthChart(userId);
+
+    if (birthChart.length !== 0) {
+      if (userId === birthChart[0].userId) {
+        try {
+          await deleteBirthChart(birthChartId);
+          res.status(200).json({ msg: "Birthchart deleted" });
+        } catch (error) {
+          console.log("Couldn't delete birthchart", error);
+          res.status(500).json({ msg: "Couldn't delete birthchart", error });
+        }
+      }
+    }
+
+    res.status(404).json({ msg: "Birthchart not found" });
+  }
+);
 
 module.exports = router;
