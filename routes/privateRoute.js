@@ -15,6 +15,7 @@ const {
   createPost,
   createBirthChart,
   addFriend,
+  removeFriendFromList,
 } = require("../models/utils/index");
 
 const {
@@ -345,4 +346,30 @@ router.put("/auth/friends/:friendId", checkToken, async (req, res) => {
   }
 });
 
+router.delete(
+  "/auth/friends/delete/:friendId",
+  checkToken,
+  async (req, res) => {
+    const friendId = req.params.friendId;
+    const decodedToken = jwtDecoder(req.headers.authorization);
+    const userId = decodedToken.id;
+
+    const isValidUser = await checkIfValidUserId(friendId);
+
+    const removeFriend = await removeFriendFromList(userId, friendId);
+
+    if (!isValidUser) {
+      return res
+        .status(404)
+        .json({ msg: "This Id doesn't belong to a valid user" });
+    }
+
+    if (removeFriend) {
+      return res.status(201).json({ msg: "Friend deleted" });
+    }
+    if (!removeFriend) {
+      return res.status(404).json({ msg: "You're not friend with this user" });
+    }
+  }
+);
 module.exports = router;

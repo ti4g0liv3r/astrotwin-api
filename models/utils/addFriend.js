@@ -8,7 +8,7 @@ const grabFriendListByUserId = async (userId) => {
   return userFriendList;
 };
 
-const checkIfAlreadyFriend = (friendId, friendsIdList) => {
+const checkIfIsFriend = (friendId, friendsIdList) => {
   const isFriend = friendsIdList.includes(friendId);
   return isFriend;
 };
@@ -38,7 +38,7 @@ const updateFriendList = async (updateData) => {
 
 const addFriend = async (userId, friendId) => {
   const userFriendList = await grabFriendListByUserId(userId);
-  const isFriendAlready = checkIfAlreadyFriend(friendId, userFriendList);
+  const isFriendAlready = checkIfIsFriend(friendId, userFriendList);
 
   if (isFriendAlready) {
     return false;
@@ -60,4 +60,26 @@ const addFriend = async (userId, friendId) => {
   }
 };
 
-module.exports = addFriend;
+const removeFriendFromList = async (userId, friendId) => {
+  const userFriendList = await grabFriendListByUserId(userId);
+  const isFriend = checkIfIsFriend(friendId, userFriendList);
+
+  if (isFriend) {
+    const newFriendList = userFriendList.filter(
+      (friend) => friend !== friendId
+    );
+
+    const updateData = {
+      userId,
+      friendsIdList: newFriendList,
+    };
+
+    const friendList = await updateFriendList(updateData);
+
+    return friendList;
+  } else {
+    return false;
+  }
+};
+
+module.exports = { addFriend, removeFriendFromList };
