@@ -14,11 +14,13 @@ const {
   createUser,
   createPost,
   createBirthChart,
+  addFriend,
 } = require("../models/utils/index");
 
 const {
   findUser,
   deleteUser,
+  checkIfValidUserId,
   findPostByUser,
   findPostByPostId,
   deletePostByPostId,
@@ -120,7 +122,7 @@ router.post("/auth/login", async (req, res) => {
       refreshSecret
     );
 
-    res.status(200).json({
+    return res.status(200).json({
       msg: "User connected",
       token,
       refreshToken,
@@ -144,7 +146,7 @@ router.get("/auth/user/profile/:id", checkToken, async (req, res) => {
     return res.status(404).json({ msg: "User not found" });
   }
 
-  res.status(200).json({ user });
+  return res.status(200).json({ user });
 });
 
 //DELETE USER ROUTE
@@ -189,14 +191,13 @@ router.post("/auth/user/post", checkToken, async (req, res) => {
     return res.status(404).json({ msg: "Could post the message" });
   }
 
-  res.status(201).json({ msg: "Posted correctly" });
+  return res.status(201).json({ msg: "Posted correctly" });
 });
 
 // GET USER POSTS
 
-router.get("/auth/user/posts", checkToken, async (req, res) => {
-  const decodedToken = jwtDecoder(req.headers.authorization);
-  const userId = decodedToken.id;
+router.get("/auth/user/posts/:userId", checkToken, async (req, res) => {
+  const userId = req.params.userId;
 
   const post = await findPostByUser(userId);
 
@@ -204,17 +205,17 @@ router.get("/auth/user/posts", checkToken, async (req, res) => {
     return res.status(404).json({ msg: "Not posts found for this user" });
   }
 
-  res.status(200).json({ post });
+  return res.status(200).json({ post });
 });
 
 //DELETE USER'S POST BY ID
 
-router.delete("/auth/user/post/:postID", checkToken, async (req, res) => {
-  const postID = req.params.postID;
+router.delete("/auth/user/post/:postId", checkToken, async (req, res) => {
+  const postId = req.params.postId;
   const decodedToken = jwtDecoder(req.headers.authorization);
   const userId = decodedToken.id;
 
-  const post = await findPostByPostId(postID);
+  const post = await findPostByPostId(postId);
 
   if (!post) {
     return res.status(404).json({ msg: "Not posts found for this user" });
@@ -226,9 +227,9 @@ router.delete("/auth/user/post/:postID", checkToken, async (req, res) => {
 
   try {
     await deletePostByPostId(postID);
-    res.status(200).json({ msg: "Post deleted!" });
+    return res.status(200).json({ msg: "Post deleted!" });
   } catch (error) {
-    res.status(500).json({ msg: "Couldn't delete the post requested" });
+    return res.status(500).json({ msg: "Couldn't delete the post requested" });
   }
 });
 
@@ -256,18 +257,18 @@ router.post("/auth/user/birthchart/calculate", checkToken, async (req, res) => {
     if (birthChart) {
       try {
         await createBirthChart(birthChart);
-        res
+        return res
           .status(201)
           .json({ msg: "Birhchart calculated correctly", birthChart });
       } catch (error) {
-        res.status(500).json({ msg: "Couldn't created birthchart" });
         console.log("Couldn't create birthchart");
+        return res.status(500).json({ msg: "Couldn't created birthchart" });
       }
     } else {
-      res.status(500).json({ msg: "Couldn't generate birthchart" });
+      return res.status(500).json({ msg: "Couldn't generate birthchart" });
     }
   } else {
-    res.status(403).json({ msg: "User already has a birthchart" });
+    return res.status(403).json({ msg: "User already has a birthchart" });
   }
 });
 
@@ -278,10 +279,10 @@ router.get("/auth/user/birthchart/chart", checkToken, async (req, res) => {
   const birthChart = await findBirthChart(userId);
 
   if (birthChart.length !== 0) {
-    res.status(200).json({ birthChart });
+    return res.status(200).json({ birthChart });
   }
 
-  res.status(404).json({ msg: "No birthchart found" });
+  return res.status(404).json({ msg: "No birthchart found" });
 });
 
 router.delete(
@@ -298,16 +299,50 @@ router.delete(
       if (userId === birthChart[0].userId) {
         try {
           await deleteBirthChart(birthChartId);
-          res.status(200).json({ msg: "Birthchart deleted" });
+          return res.status(200).json({ msg: "Birthchart deleted" });
         } catch (error) {
           console.log("Couldn't delete birthchart", error);
-          res.status(500).json({ msg: "Couldn't delete birthchart", error });
+          return res
+            .status(500)
+            .json({ msg: "Couldn't delete birthchart", error });
         }
       }
     }
 
-    res.status(404).json({ msg: "Birthchart not found" });
+    return res.status(404).json({ msg: "Birthchart not found" });
   }
 );
+
+///////////////////////////////////////////////////////
+
+//FRIENDS MANAGEMENT SESSION
+
+router.put("/auth/friends/:friendId", checkToken, async (req, res) => {
+  const friendId = req.params.friendId;
+  const decodedToken = jwtDecoder(req.headers.authorization);
+  const userId = decodedToken.id;
+
+  const isValidUser = await checkIfValidUserId(friendId);
+  const friendIsNotUser = userId === friendId;
+
+  const addNewFriend = await addFriend(userId, friendId);
+
+  if (!isValidUser) {
+    return res
+      .status(404)
+      .json({ msg: "This Id doesn't belong to a valid user" });
+  }
+
+  if (friendIsNotUser) {
+    return res.status(404).json({ msg: "You can't be friend with yourself" });
+  }
+
+  if (addNewFriend) {
+    return res.status(201).json({ msg: "Friend added" });
+  }
+  if (!addNewFriend) {
+    return res.status(404).json({ msg: "Already Friend" });
+  }
+});
 
 module.exports = router;
