@@ -1,4 +1,4 @@
-const { findUser, deleteUser } = require("./userQuery");
+const { findUser, deleteUser, checkIfValidUserId } = require("./userQuery");
 const {
   findPostByUser,
   findPostByPostId,
@@ -14,4 +14,5 @@ module.exports = {
   deletePostByPostId,
   findBirthChart,
   deleteBirthChart,
+  checkIfValidUserId,
 };

@@ -1,5 +1,18 @@
 const User = require("../models/User");
 
+const checkIfValidUserId = async (id) => {
+  const isValidFriendUser = await User.find({
+    _id: id,
+  })
+    .then((res) => res)
+    .catch((error) => {
+      console.log(error);
+      return false;
+    });
+
+  return isValidFriendUser;
+};
+
 const findUser = async (id) => {
   try {
     const user = await User.findById(id, "-password");
@@ -18,4 +31,4 @@ const deleteUser = async (id) => {
   }
 };
 
-module.exports = { findUser, deleteUser };
+module.exports = { findUser, deleteUser, checkIfValidUserId };
