@@ -5,7 +5,7 @@ const router = express.Router();
 
 const { jwtDecoder, checkToken, passwordCompare } = require("../utils");
 
-const { createUser, deleteUser } = require("../queries");
+const { createUser, deleteUser, findAllUsers } = require("../queries");
 const { findById } = require("../queries/basicQuery");
 
 const User = require("../models/User");
@@ -142,6 +142,17 @@ router.delete("/profile/:id", checkToken, async (req, res) => {
   } catch (error) {
     return res.status(500).json({ msg: "Oops! something went wrong" });
   }
+});
+
+router.get("/profiles", checkToken, async (req, res) => {
+  const query = { dbQuery: {}, options: { password: 0 } };
+  const users = await findAllUsers(query);
+
+  if (!users) {
+    return res.status(404).json({ msg: "Users not found" });
+  }
+
+  return res.status(200).json({ users });
 });
 
 module.exports = router;
