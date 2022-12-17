@@ -1,34 +1,31 @@
 const User = require("../models/User");
+const { passwordEncrypt, getZodiac } = require("../utils");
+const { save, find, deleteOne } = require("./basicQuery");
+
+const createUser = async (name, email, birthdate, password) => {
+  const passwordHash = await passwordEncrypt(password, 12);
+
+  const user = new User({
+    name,
+    email,
+    birthdate,
+    password: passwordHash,
+    zodiacSign: getZodiac(birthdate),
+  });
+
+  await save(user);
+  return user;
+};
 
 const checkIfValidUserId = async (id) => {
-  const isValidFriendUser = await User.find({
-    _id: id,
-  })
-    .then((res) => res)
-    .catch((error) => {
-      console.log(error);
-      return false;
-    });
+  const isValidFriendUser = await find(User, { _id: id });
 
   return isValidFriendUser;
 };
 
-const findUser = async (id) => {
-  try {
-    const user = await User.findById(id, "-password");
-    return user;
-  } catch (error) {
-    console.log("User not found");
-  }
-};
-
 const deleteUser = async (id) => {
-  try {
-    const user = await User.deleteOne({ _id: id });
-    return user;
-  } catch (error) {
-    console.log("User not found");
-  }
+  const user = await deleteOne(User, { _id: id });
+  return user;
 };
 
-module.exports = { findUser, deleteUser, checkIfValidUserId };
+module.exports = { createUser, deleteUser, checkIfValidUserId };

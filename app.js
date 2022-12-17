@@ -3,12 +3,21 @@ const mongoose = require("mongoose");
 
 require("dotenv").config();
 
-const { publicRoute, privateRoute } = require("./routes");
+const {
+  publicRoute,
+  usersRoute,
+  postsRoute,
+  birthChartRoute,
+  friendsRoute,
+} = require("./routes");
 
 const app = express();
 app.use(express.json());
 app.use("/", publicRoute);
-app.use("/auth/", privateRoute);
+app.use("/auth/user/", usersRoute);
+app.use("/auth/friends/", friendsRoute);
+app.use("/auth/posts/", postsRoute);
+app.use("/auth/birthchart/", birthChartRoute);
 
 const DB_USERNAME = process.env.DB_USERNAME;
 const DB_PASSWORD = process.env.DB_PASSWORD;
