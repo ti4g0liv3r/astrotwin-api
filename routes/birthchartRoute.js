@@ -16,6 +16,7 @@ const {
 //
 // - ADD A ROUTE TO GET BIRTHCHART BY ID
 // - REFACTOR BIRTHCHART CALCULATION LOGIC
+// - CHECK IF BIRTHCHART IS CALCULATION IS RIGHT
 //
 ///////////////////////////////////////////////////////
 

@@ -1,4 +1,5 @@
 const Post = require("../models/Posts");
+const { save, find, deleteOne } = require("./basicQuery");
 
 const createPost = async (post, userId) => {
   const date = new Date();
@@ -8,41 +9,24 @@ const createPost = async (post, userId) => {
     userId,
   });
 
-  try {
-    await newPost.save();
-    return true;
-  } catch (error) {
-    console.log(error);
-    return false;
-  }
+  await save(newPost);
+
+  return newPost;
 };
 
 const findPostByUser = async (userId) => {
-  try {
-    const post = await Post.find({ userId: userId });
-    return post;
-  } catch (error) {
-    console.log("No posts found for that user");
-  }
+  const post = await find(Post, { userId: userId });
+  return post;
 };
 
 const findPostByPostId = async (postID) => {
-  try {
-    const post = await Post.find({ _id: postID });
-    return post;
-  } catch (error) {
-    console.log("No posts found with that post id");
-  }
+  const post = await find(Post, { _id: postID });
+  return post;
 };
 
 const deletePostByPostId = async (postID) => {
-  console.log(`Post ${postID} requested to be deleted`);
-  try {
-    const post = await Post.deleteOne({ _id: postID });
-    return post;
-  } catch (error) {
-    console.log("No posts found for that post id");
-  }
+  const post = await deleteOne(Post, { _id: postID });
+  return post;
 };
 
 module.exports = {

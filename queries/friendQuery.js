@@ -1,11 +1,10 @@
 const Friends = require("../models/Friends");
+const { save, find, updateOne } = require("./basicQuery");
 
 const grabFriendListByUserId = async (userId) => {
-  const userFriendList = await Friends.find({ userId: userId })
-    .then((res) => res[0].friendsIdList)
-    .catch((err) => err);
+  const userFriendList = await find(Friends, { userId: userId });
 
-  return userFriendList;
+  return userFriendList ? userFriendList[0].friendsIdList : userFriendList;
 };
 
 const checkIfIsFriend = (friendId, friendsIdList) => {
@@ -21,18 +20,13 @@ const createFriendList = async (userId, friendList) => {
     .then((res) => res)
     .catch((err) => err);
 
-  await newFriendIdList
-    .save()
-    .then((res) => res)
-    .catch((err) => err);
+  await save(newFriendIdList);
 
   return newFriendIdList;
 };
 
 const updateFriendList = async (updateData) => {
-  const updateFriends = await Friends.updateOne(updateData)
-    .then((res) => res)
-    .catch((err) => err);
+  const updateFriends = await updateOne(Friends, updateData);
   return updateFriends;
 };
 

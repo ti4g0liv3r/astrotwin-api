@@ -1,4 +1,5 @@
 const BirthChart = require("../models/BirthCharts");
+const { save, find, deleteOne } = require("./basicQuery");
 
 const createBirthChart = async (birthChart) => {
   const newBirthchart = new BirthChart({
@@ -20,31 +21,18 @@ const createBirthChart = async (birthChart) => {
     houses: birthChart.houses,
   });
 
-  try {
-    await newBirthchart.save();
-    return true;
-  } catch (error) {
-    console.log(error);
-    return false;
-  }
+  await save(newBirthchart);
+  return newBirthchart;
 };
 
 const findBirthChart = async (userId) => {
-  try {
-    const birthChart = await BirthChart.find({ userId: userId });
-    return birthChart;
-  } catch (error) {
-    console.log("No birthchart found");
-  }
+  const birthChart = await find(BirthChart, { userId: userId });
+  return birthChart;
 };
 
 const deleteBirthChart = async (birthChartID) => {
-  try {
-    const birthChart = await BirthChart.deleteOne({ _id: birthChartID });
-    return birthChart;
-  } catch (error) {
-    console.log("Couldn't delete birthchart", error);
-  }
+  const birthChart = await deleteOne(BirthChart, { _id: birthChartID });
+  return birthChart;
 };
 
 module.exports = { createBirthChart, findBirthChart, deleteBirthChart };

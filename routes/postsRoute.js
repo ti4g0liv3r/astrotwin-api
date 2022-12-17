@@ -14,6 +14,11 @@ const {
 //
 // -*-*- POSTS MANAGEMENT ROUTER -*-*-
 //
+// * PENDING TASKS HERE
+//
+// - ADD A ROUTE TO GET POST BY ID
+//
+//
 ///////////////////////////////////////////////////////
 
 router.post("/post", checkToken, async (req, res) => {
@@ -30,7 +35,7 @@ router.post("/post", checkToken, async (req, res) => {
   return res.status(201).json({ msg: "Posted correctly" });
 });
 
-router.get("/posts/:userId", checkToken, async (req, res) => {
+router.get("/:userId", checkToken, async (req, res) => {
   const userId = req.params.userId;
 
   const post = await findPostByUser(userId);
@@ -53,12 +58,12 @@ router.delete("/post/:postId", checkToken, async (req, res) => {
     return res.status(404).json({ msg: "Not posts found for this user" });
   }
 
-  if (userId !== post[0].user) {
+  if (userId !== post[0].userId) {
     return res.status(403).json({ msg: "Permision denied!" });
   }
 
   try {
-    await deletePostByPostId(postID);
+    await deletePostByPostId(postId);
     return res.status(200).json({ msg: "Post deleted!" });
   } catch (error) {
     return res.status(500).json({ msg: "Couldn't delete the post requested" });
