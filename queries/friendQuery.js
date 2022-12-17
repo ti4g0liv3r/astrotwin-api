@@ -1,10 +1,26 @@
 const Friends = require("../models/Friends");
-const { save, find, updateOne } = require("./basicQuery");
+const User = require("../models/User");
+const { save, find, findAll, updateOne } = require("./basicQuery");
 
 const grabFriendListByUserId = async (userId) => {
   const userFriendList = await find(Friends, { userId: userId });
 
-  return userFriendList ? userFriendList[0].friendsIdList : userFriendList;
+  return userFriendList.length !== 0 ? userFriendList[0].friendsIdList : false;
+};
+
+const grabAllUserFriends = async (userId) => {
+  const friendList = await grabFriendListByUserId(userId);
+  if (friendList) {
+    const userList = await findAll(User, {
+      dbQuery: { _id: friendList },
+      options: { password: 0 },
+    });
+
+    console.log("friendsArray:", userList);
+    return userList;
+  }
+
+  return friendList;
 };
 
 const checkIfIsFriend = (friendId, friendsIdList) => {
@@ -16,9 +32,7 @@ const createFriendList = async (userId, friendList) => {
   const newFriendIdList = new Friends({
     userId: userId,
     friendsIdList: friendList,
-  })
-    .then((res) => res)
-    .catch((err) => err);
+  });
 
   await save(newFriendIdList);
 
@@ -38,7 +52,7 @@ const addFriend = async (userId, friendId) => {
     return false;
   }
 
-  if (userFriendList.length === 0) {
+  if (userFriendList) {
     let friendList = [friendId];
     const newFriendList = await createFriendList(userId, friendList);
 
@@ -76,4 +90,4 @@ const removeFriendFromList = async (userId, friendId) => {
   }
 };
 
-module.exports = { addFriend, removeFriendFromList };
+module.exports = { addFriend, removeFriendFromList, grabAllUserFriends };

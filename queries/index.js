@@ -16,7 +16,11 @@ const {
   findBirthChartById,
   deleteBirthChart,
 } = require("./birthChartQuery");
-const { addFriend, removeFriendFromList } = require("./friendQuery");
+const {
+  addFriend,
+  removeFriendFromList,
+  grabAllUserFriends,
+} = require("./friendQuery");
 
 module.exports = {
   createUser,
@@ -33,4 +37,5 @@ module.exports = {
   checkIfValidUserId,
   addFriend,
   removeFriendFromList,
+  grabAllUserFriends,
 };

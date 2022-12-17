@@ -7,17 +7,28 @@ const {
   checkIfValidUserId,
   addFriend,
   removeFriendFromList,
+  grabAllUserFriends,
 } = require("../queries");
 
 ///////////////////////////////////////////////////////
 //
 // -*-*- FRIENDS MANAGEMENT ROUTER -*-*-
 //
-// * PENDING TASKS HERE
-//
-// - ADD A ROUTE TO GET ALL FRIENDS FOR THE USER
-//
 ///////////////////////////////////////////////////////
+
+router.get("/", checkToken, async (req, res) => {
+  const decodedToken = jwtDecoder(req.headers.authorization);
+  const userId = decodedToken.id;
+
+  const isValidUser = await checkIfValidUserId(userId);
+
+  if (isValidUser) {
+    const friendList = await grabAllUserFriends(userId);
+    return res.status(200).json(friendList);
+  } else {
+    return res.status(404).json({ msg: "User has no friends" });
+  }
+});
 
 router.put("/:friendId", checkToken, async (req, res) => {
   const friendId = req.params.friendId;
