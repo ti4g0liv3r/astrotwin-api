@@ -14,10 +14,10 @@ const {
 const app = express();
 app.use(express.json());
 app.use("/", publicRoute);
-app.use("auth/user/", usersRoute);
-app.use("auth/friends/", friendsRoute);
-app.use("auth/posts/", postsRoute);
-app.use("auth/birthchart/", birthChartRoute);
+app.use("/auth/user/", usersRoute);
+app.use("/auth/friends/", friendsRoute);
+app.use("/auth/posts/", postsRoute);
+app.use("/auth/birthchart/", birthChartRoute);
 
 const DB_USERNAME = process.env.DB_USERNAME;
 const DB_PASSWORD = process.env.DB_PASSWORD;

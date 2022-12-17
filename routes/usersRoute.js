@@ -111,7 +111,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.get("/user/profile/:id", checkToken, async (req, res) => {
+router.get("/profile/:id", checkToken, async (req, res) => {
   const id = req.params.id;
 
   const user = await findUser(id);
@@ -123,7 +123,7 @@ router.get("/user/profile/:id", checkToken, async (req, res) => {
   return res.status(200).json({ user });
 });
 
-router.delete("/user/profile/:id", checkToken, async (req, res) => {
+router.delete("/profile/:id", checkToken, async (req, res) => {
   const id = req.params.id;
   const decodedToken = jwtDecoder(req.headers.authorization);
   const tokenUserId = decodedToken.id;
