@@ -16,7 +16,6 @@ const User = require("../models/User");
 //
 // * PENDING TASKS HERE
 //
-// - ENCASULATE INSIDE FUNCTIONS ALL THE REQUESTS TO DB
 // - REVIEW LOGIC TO REDUCE UNNECESSARY CODE
 //
 ///////////////////////////////////////////////////////
