@@ -14,11 +14,6 @@ const {
 //
 // -*-*- POSTS MANAGEMENT ROUTER -*-*-
 //
-// * PENDING TASKS HERE
-//
-// - ADD A ROUTE TO GET POST BY ID
-//
-//
 ///////////////////////////////////////////////////////
 
 router.post("/post", checkToken, async (req, res) => {
@@ -42,6 +37,18 @@ router.get("/:userId", checkToken, async (req, res) => {
 
   if (!post) {
     return res.status(404).json({ msg: "Not posts found for this user" });
+  }
+
+  return res.status(200).json({ post });
+});
+
+router.get("/post/:postId", checkToken, async (req, res) => {
+  const postId = req.params.postId;
+
+  const post = await findPostByPostId(postId);
+
+  if (!post) {
+    return res.status(404).json({ msg: "Not posts found with this" });
   }
 
   return res.status(200).json({ post });
