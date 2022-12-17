@@ -1,5 +1,22 @@
 const Post = require("../models/Posts");
 
+const createPost = async (post, userId) => {
+  const date = new Date();
+  const newPost = new Post({
+    date,
+    post,
+    userId,
+  });
+
+  try {
+    await newPost.save();
+    return true;
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+};
+
 const findPostByUser = async (userId) => {
   try {
     const post = await Post.find({ userId: userId });
@@ -28,4 +45,9 @@ const deletePostByPostId = async (postID) => {
   }
 };
 
-module.exports = { findPostByUser, findPostByPostId, deletePostByPostId };
+module.exports = {
+  createPost,
+  findPostByUser,
+  findPostByPostId,
+  deletePostByPostId,
+};

@@ -3,9 +3,11 @@ const router = express.Router();
 
 const { jwtDecoder, checkToken } = require("../utils");
 
-const { addFriend, removeFriendFromList } = require("../models/utils/index");
-
-const { checkIfValidUserId } = require("../queries");
+const {
+  checkIfValidUserId,
+  addFriend,
+  removeFriendFromList,
+} = require("../queries");
 
 ///////////////////////////////////////////////////////
 //

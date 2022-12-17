@@ -3,9 +3,8 @@ const router = express.Router();
 
 const { jwtDecoder, checkToken } = require("../utils");
 
-const { createPost } = require("../models/utils/index");
-
 const {
+  createPost,
   findPostByUser,
   findPostByPostId,
   deletePostByPostId,

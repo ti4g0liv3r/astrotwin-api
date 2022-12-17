@@ -1,4 +1,4 @@
-const Friends = require("../Friends");
+const Friends = require("../models/Friends");
 
 const grabFriendListByUserId = async (userId) => {
   const userFriendList = await Friends.find({ userId: userId })

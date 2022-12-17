@@ -3,9 +3,11 @@ const router = express.Router();
 
 const { jwtDecoder, checkToken, calculateBirthChart } = require("../utils");
 
-const { createBirthChart } = require("../models/utils/index");
-
-const { findBirthChart, deleteBirthChart } = require("../queries");
+const {
+  createBirthChart,
+  findBirthChart,
+  deleteBirthChart,
+} = require("../queries");
 
 ///////////////////////////////////////////////////////
 // -*-*- BIRTHCHART MANAGEMENT ROUTER -*-*-

@@ -5,9 +5,8 @@ const router = express.Router();
 
 const { jwtDecoder, checkToken, passwordCompare } = require("../utils");
 
-const { createUser } = require("../models/utils/index");
-
-const { findUser, deleteUser } = require("../queries");
+const { createUser, deleteUser } = require("../queries");
+const { findById } = require("../queries/basicQuery");
 
 const User = require("../models/User");
 
@@ -114,7 +113,7 @@ router.post("/login", async (req, res) => {
 router.get("/profile/:id", checkToken, async (req, res) => {
   const id = req.params.id;
 
-  const user = await findUser(id);
+  const user = await findById(id);
 
   if (!user) {
     return res.status(404).json({ msg: "User not found" });
@@ -128,7 +127,7 @@ router.delete("/profile/:id", checkToken, async (req, res) => {
   const decodedToken = jwtDecoder(req.headers.authorization);
   const tokenUserId = decodedToken.id;
 
-  const user = await findUser(id);
+  const user = await findById(id);
 
   if (!user) {
     return res.status(404).json({ msg: "User not found" });
