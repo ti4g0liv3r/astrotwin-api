@@ -14,6 +14,15 @@ const find = async (model, query) => {
   return object;
 };
 
+const findAll = async (model, query) => {
+  const { dbQuery, options } = query;
+  const object = await model
+    .find(dbQuery, options)
+    .then((res) => res)
+    .catch((err) => err);
+  return object;
+};
+
 const findById = async (model, query) => {
   const { id, option } = query;
   const object = await model
@@ -41,4 +50,4 @@ const updateOne = async (model, query) => {
   return object;
 };
 
-module.exports = { save, find, findById, deleteOne, updateOne };
+module.exports = { save, find, findById, findAll, deleteOne, updateOne };
