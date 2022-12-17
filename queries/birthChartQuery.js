@@ -25,9 +25,14 @@ const createBirthChart = async (birthChart) => {
   return newBirthchart;
 };
 
-const findBirthChart = async (userId) => {
+const findBirthChartByUser = async (userId) => {
   const birthChart = await find(BirthChart, { userId: userId });
-  return birthChart;
+  return birthChart.length == 0 ? false : birthChart;
+};
+
+const findBirthChartById = async (chartId) => {
+  const birthChart = await find(BirthChart, { _id: chartId });
+  return birthChart.length == 0 ? false : birthChart;
 };
 
 const deleteBirthChart = async (birthChartID) => {
@@ -35,4 +40,9 @@ const deleteBirthChart = async (birthChartID) => {
   return birthChart;
 };
 
-module.exports = { createBirthChart, findBirthChart, deleteBirthChart };
+module.exports = {
+  createBirthChart,
+  findBirthChartByUser,
+  findBirthChartById,
+  deleteBirthChart,
+};

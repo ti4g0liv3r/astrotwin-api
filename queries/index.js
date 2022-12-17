@@ -12,7 +12,8 @@ const {
 } = require("./postQuery");
 const {
   createBirthChart,
-  findBirthChart,
+  findBirthChartByUser,
+  findBirthChartById,
   deleteBirthChart,
 } = require("./birthChartQuery");
 const { addFriend, removeFriendFromList } = require("./friendQuery");
@@ -26,7 +27,8 @@ module.exports = {
   findPostByPostId,
   deletePostByPostId,
   createBirthChart,
-  findBirthChart,
+  findBirthChartByUser,
+  findBirthChartById,
   deleteBirthChart,
   checkIfValidUserId,
   addFriend,
