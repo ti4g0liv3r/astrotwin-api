@@ -26,7 +26,7 @@ const calculateBirthChart = (
   userId
 ) => {
   const year = date.split("-")[0];
-  const month = date.split("-")[1];
+  const month = date.split("-")[1] - 1;
   const day = date.split("-")[2];
 
   const origin = new Origin({

@@ -1,4 +1,10 @@
-const { createUser, deleteUser, checkIfValidUserId } = require("./userQuery");
+const {
+  createUser,
+  deleteUser,
+  checkIfValidUserId,
+  findAllUsers,
+  isValidUser,
+} = require("./userQuery");
 const {
   createPost,
   findPostByUser,
@@ -7,22 +13,31 @@ const {
 } = require("./postQuery");
 const {
   createBirthChart,
-  findBirthChart,
+  findBirthChartByUser,
+  findBirthChartById,
   deleteBirthChart,
 } = require("./birthChartQuery");
-const { addFriend, removeFriendFromList } = require("./friendQuery");
+const {
+  addFriend,
+  removeFriendFromList,
+  grabAllUserFriends,
+} = require("./friendQuery");
 
 module.exports = {
   createUser,
   deleteUser,
+  findAllUsers,
+  isValidUser,
   createPost,
   findPostByUser,
   findPostByPostId,
   deletePostByPostId,
   createBirthChart,
-  findBirthChart,
+  findBirthChartByUser,
+  findBirthChartById,
   deleteBirthChart,
   checkIfValidUserId,
   addFriend,
   removeFriendFromList,
+  grabAllUserFriends,
 };

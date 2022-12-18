@@ -5,7 +5,8 @@ const { jwtDecoder, checkToken, calculateBirthChart } = require("../utils");
 
 const {
   createBirthChart,
-  findBirthChart,
+  findBirthChartByUser,
+  findBirthChartById,
   deleteBirthChart,
 } = require("../queries");
 
@@ -14,9 +15,7 @@ const {
 //
 // * PENDING TASKS HERE
 //
-// - ADD A ROUTE TO GET BIRTHCHART BY ID
-// - REFACTOR BIRTHCHART CALCULATION LOGIC
-// - CHECK IF BIRTHCHART IS CALCULATION IS RIGHT
+// - ADD "ANNUAL PROFECTIONS" BASED ON ASCENDANT (FR)
 //
 ///////////////////////////////////////////////////////
 
@@ -36,21 +35,17 @@ router.post("/calculate", checkToken, async (req, res) => {
     userId
   );
 
-  const existingBirthchart = await findBirthChart(userId);
+  const existingBirthchart = await findBirthChartByUser(userId);
+
+  const newBirthChart = await createBirthChart(birthChart);
 
   //This needs to be refactored soon
 
-  if (existingBirthchart.length == 0) {
-    if (birthChart) {
-      try {
-        await createBirthChart(birthChart);
-        return res
-          .status(201)
-          .json({ msg: "Birhchart calculated correctly", birthChart });
-      } catch (error) {
-        console.log("Couldn't create birthchart");
-        return res.status(500).json({ msg: "Couldn't created birthchart" });
-      }
+  if (existingBirthchart) {
+    if (newBirthChart) {
+      return res
+        .status(201)
+        .json({ msg: "Birhchart calculated correctly", newBirthChart });
     } else {
       return res.status(500).json({ msg: "Couldn't generate birthchart" });
     }
@@ -63,9 +58,21 @@ router.get("/chart", checkToken, async (req, res) => {
   const decodedToken = jwtDecoder(req.headers.authorization);
   const userId = decodedToken.id;
 
-  const birthChart = await findBirthChart(userId);
+  const birthChart = await findBirthChartByUser(userId);
 
   if (birthChart.length !== 0) {
+    return res.status(200).json({ birthChart });
+  }
+
+  return res.status(404).json({ msg: "No birthchart found" });
+});
+
+router.get("/chart/:birthChartId", checkToken, async (req, res) => {
+  const birthChartId = req.params.birthChartId;
+
+  const birthChart = await findBirthChartById(birthChartId);
+
+  if (birthChart) {
     return res.status(200).json({ birthChart });
   }
 
@@ -77,15 +84,14 @@ router.delete("/:birthChartId", checkToken, async (req, res) => {
   const decodedToken = jwtDecoder(req.headers.authorization);
   const userId = decodedToken.id;
 
-  const birthChart = await findBirthChart(userId);
+  const birthChart = await findBirthChartByUser(userId);
 
-  if (birthChart.length !== 0) {
+  if (birthChart) {
     if (userId === birthChart[0].userId) {
       try {
         await deleteBirthChart(birthChartId);
         return res.status(200).json({ msg: "Birthchart deleted" });
       } catch (error) {
-        console.log("Couldn't delete birthchart", error);
         return res
           .status(500)
           .json({ msg: "Couldn't delete birthchart", error });

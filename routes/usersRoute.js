@@ -5,10 +5,13 @@ const router = express.Router();
 
 const { jwtDecoder, checkToken, passwordCompare } = require("../utils");
 
-const { createUser, deleteUser } = require("../queries");
+const {
+  createUser,
+  deleteUser,
+  findAllUsers,
+  isValidUser,
+} = require("../queries");
 const { findById } = require("../queries/basicQuery");
-
-const User = require("../models/User");
 
 ///////////////////////////////////////////////////////
 //
@@ -16,7 +19,7 @@ const User = require("../models/User");
 //
 // * PENDING TASKS HERE
 //
-// - REVIEW LOGIC TO REDUCE UNNECESSARY CODE
+// - ADD YUP TO VALIDATIONS
 //
 ///////////////////////////////////////////////////////
 
@@ -44,7 +47,7 @@ router.post("/register", async (req, res) => {
       .json({ msg: "Password and password confirmation must be the same" });
   }
 
-  const userExists = await User.findOne({ email: email });
+  const userExists = await isValidUser({ email: email });
 
   if (userExists) {
     return res.status(422).json({ msg: "Please, use another email" });
@@ -68,7 +71,7 @@ router.post("/login", async (req, res) => {
     return res.status(422).json({ msg: "Password is a required field" });
   }
 
-  const user = await User.findOne({ email: email });
+  const user = await isValidUser({ email: email });
 
   if (!user) {
     return res.status(404).json({ msg: "User does not exist" });
@@ -142,6 +145,17 @@ router.delete("/profile/:id", checkToken, async (req, res) => {
   } catch (error) {
     return res.status(500).json({ msg: "Oops! something went wrong" });
   }
+});
+
+router.get("/profiles", checkToken, async (req, res) => {
+  const query = { dbQuery: {}, options: { password: 0 } };
+  const users = await findAllUsers(query);
+
+  if (!users) {
+    return res.status(404).json({ msg: "Users not found" });
+  }
+
+  return res.status(200).json({ users });
 });
 
 module.exports = router;
