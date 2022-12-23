@@ -24,7 +24,7 @@ const { findById } = require("../queries/basicQuery");
 ///////////////////////////////////////////////////////
 
 router.post("/register", async (req, res) => {
-  const { name, email, birthdate, password, confirmPasspord } = req.body;
+  const { name, email, birthdate, password, confirmPassword } = req.body;
 
   if (!name) {
     return res.status(422).json({ msg: "Missing name field" });
@@ -37,11 +37,11 @@ router.post("/register", async (req, res) => {
     return res.status(422).json({ msg: "Missing password field" });
   }
 
-  if (!confirmPasspord) {
+  if (!confirmPassword) {
     return res.status(422).json({ msg: "Missing password confirmation field" });
   }
 
-  if (password !== confirmPasspord) {
+  if (password !== confirmPassword) {
     return res
       .status(422)
       .json({ msg: "Password and password confirmation must be the same" });

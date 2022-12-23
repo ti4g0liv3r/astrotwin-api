@@ -35,7 +35,7 @@ const findAllUsers = async (query) => {
 
 const isValidUser = async (query) => {
   const user = await findOne(User, query);
-  return user.length !== 0 ? user : false;
+  return user && user.length !== 0 ? user : false;
 };
 
 module.exports = {
