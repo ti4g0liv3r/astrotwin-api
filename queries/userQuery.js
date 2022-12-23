@@ -1,6 +1,13 @@
 const User = require("../models/User");
 const { passwordEncrypt, getZodiac } = require("../utils");
-const { save, find, findAll, deleteOne, findOne } = require("./basicQuery");
+const {
+  save,
+  find,
+  findAll,
+  deleteOne,
+  findOne,
+  findById,
+} = require("./basicQuery");
 
 const createUser = async (name, email, birthdate, password) => {
   const passwordHash = await passwordEncrypt(password, 12);
@@ -38,10 +45,16 @@ const isValidUser = async (query) => {
   return user && user.length !== 0 ? user : false;
 };
 
+const findUserById = async (query) => {
+  const user = await findById(User, query);
+  return user && user.length !== 0 ? user : false;
+};
+
 module.exports = {
   createUser,
   deleteUser,
   checkIfValidUserId,
   findAllUsers,
   isValidUser,
+  findUserById,
 };

@@ -10,8 +10,8 @@ const {
   deleteUser,
   findAllUsers,
   isValidUser,
+  findUserById,
 } = require("../queries");
-const { findById } = require("../queries/basicQuery");
 
 ///////////////////////////////////////////////////////
 //
@@ -101,8 +101,11 @@ router.post("/login", async (req, res) => {
       refreshSecret
     );
 
+    console.log(user);
+
     return res.status(200).json({
       msg: "User connected",
+      user,
       token,
       refreshToken,
     });
@@ -115,7 +118,7 @@ router.post("/login", async (req, res) => {
 router.get("/profile/:id", checkToken, async (req, res) => {
   const id = req.params.id;
 
-  const user = await findById(id);
+  const user = await findUserById({ id: id, option: { password: 0 } });
 
   if (!user) {
     return res.status(404).json({ msg: "User not found" });
@@ -129,7 +132,7 @@ router.delete("/profile/:id", checkToken, async (req, res) => {
   const decodedToken = jwtDecoder(req.headers.authorization);
   const tokenUserId = decodedToken.id;
 
-  const user = await findById(id);
+  const user = await findUserById({ id: id, option: { password: 0 } });
 
   if (!user) {
     return res.status(404).json({ msg: "User not found" });
