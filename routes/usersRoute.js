@@ -101,11 +101,14 @@ router.post("/login", async (req, res) => {
       refreshSecret
     );
 
-    console.log(user);
-
     return res.status(200).json({
       msg: "User connected",
-      user,
+      user: {
+        name: user.name,
+        email: user.email,
+        birthdate: user.birthdate,
+        zodiacSign: user.zodiacSign,
+      },
       token,
       refreshToken,
     });
