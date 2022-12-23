@@ -4,6 +4,7 @@ const {
   checkIfValidUserId,
   findAllUsers,
   isValidUser,
+  findUserById,
 } = require("./userQuery");
 const {
   createPost,
@@ -28,6 +29,7 @@ module.exports = {
   deleteUser,
   findAllUsers,
   isValidUser,
+  findUserById,
   createPost,
   findPostByUser,
   findPostByPostId,

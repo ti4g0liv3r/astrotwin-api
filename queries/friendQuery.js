@@ -16,7 +16,6 @@ const grabAllUserFriends = async (userId) => {
       options: { password: 0 },
     });
 
-    console.log("friendsArray:", userList);
     return userList;
   }
 
