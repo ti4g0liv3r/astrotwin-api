@@ -22,6 +22,7 @@
 
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require("cors");
 
 require("dotenv").config();
 
@@ -41,10 +42,17 @@ app.use("/auth/friends/", friendsRoute);
 app.use("/auth/posts/", postsRoute);
 app.use("/auth/birthchart/", birthChartRoute);
 
+const corsOptions = {
+  origin: "*",
+  optionsSuccessStatus: 200, // For legacy browser support
+};
+
+app.use(cors(corsOptions));
+
 const DB_USERNAME = process.env.DB_USERNAME;
 const DB_PASSWORD = process.env.DB_PASSWORD;
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3500;
 
 mongoose.set("strictQuery", true);
 
